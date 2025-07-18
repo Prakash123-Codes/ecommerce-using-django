@@ -1,11 +1,15 @@
 from django.db import models
 import datetime
+from django.contrib.auth.models import User
 
-class Category(models.Model):  # ✅ Use PascalCase
-    name = models.CharField(max_length=50)
-
+class Category(models.Model):
+    name =models.CharField(max_length=50)
+    
     def __str__(self):
         return self.name
+    
+    # class Meta:
+    #     verbose_name-plural = 'categories'
 
 
 class Customer(models.Model):
@@ -15,29 +19,43 @@ class Customer(models.Model):
     email = models.EmailField(max_length=100)
     password = models.CharField(max_length=50)
 
-    def __str__(self):
-        return f'{self.first_name} {self.last_name}'
+def __str__(self):
+    return f'{self.first_name}{self.last_name}'
 
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
     price = models.DecimalField(default=0, max_digits=6, decimal_places=2)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    Category = models. ForeignKey(Category, on_delete=models.CASCADE,default=1)
     description = models.CharField(max_length=100, default='', blank=True, null=True)
     image = models.ImageField(upload_to='upload/products/')
 
-    def __str__(self):
-        return self.name
+def __str__(self):
+    return self.name
 
 
 class Order(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    address = models.CharField(max_length=255, default='', blank=True)
+    Product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    Customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    address = models.CharField(max_length=100, default='', blank=True)
     phone = models.CharField(max_length=100, default='', blank=True)
     date = models.DateField(default=datetime.datetime.today)
     quantity = models.IntegerField(default=1)
     status = models.BooleanField(default=False)
 
+def __str__(self):
+    return self.Product
+
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
-        return f'Order {self.id} by {self.customer.first_name}'
+        return f"{self.quantity} x {self.product.name}"
+
+    def total_price(self):
+        return self.quantity * self.product.price
+
+
